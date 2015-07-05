@@ -1,6 +1,6 @@
 {
   "name": "cargojs",
-  "version": "1.0.0",
+  "version": "0.5.1",
   "description": "Wrapper API for OrientDB operations",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,8 @@
   "author": "Malindu Warapitiya <warapitiya93@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "orientjs": "^2.0.0"
+    "orientjs": "^2.0.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {},
   "repository": {
