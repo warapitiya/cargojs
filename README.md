@@ -4,7 +4,7 @@
 
 Cargojs is an API for [OrientDB] operations build on top of [Express].
 
-Cargojs support few amount of operations including BREAD at the moment and build on top of [Orientjs]
+Cargojs support few amount of operations including BREAD at the moment and build using [Orientjs] as main driver.
 
   - Browse
   - Read
