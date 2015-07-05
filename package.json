@@ -1,6 +1,6 @@
 {
   "name": "cargojs",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Wrapper API for OrientDB operations",
   "main": "index.js",
   "scripts": {
