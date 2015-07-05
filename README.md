@@ -164,6 +164,34 @@ exports.queryUsers = function(req, res) {
 };
 ```
 
+####+ Select | Select columns
+```js
+exports.selectColumnsUsers = function(req, res) {
+    req.models.user.select('name, lastName').browse({
+            'status': 'active'
+        }).then(function(users)) {
+            console.log(users);
+        },
+        function(error) {
+            console.error(error)
+        });
+};
+```
+
+####+ Limit | Limit records (only works with browse right now)
+```js
+exports.limitUsers = function(req, res) {
+    req.models.user.limit(5).browse({
+            'status': 'active'
+        }).then(function(users)) {
+            console.log(users);
+        },
+        function(error) {
+            console.error(error)
+        });
+};
+```
+
 ### Version
 1.0.0
 
