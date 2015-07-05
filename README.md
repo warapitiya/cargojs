@@ -1,8 +1,10 @@
-# Cargo
+# Cargojs
 
-Cargo is an API for [OrientDB] operations build on top of [Express].
+![alt tag](https://dl.dropboxusercontent.com/s/uwjsu733s54m60e/Cargo_long.png?dl=0)
 
-Cargo support few amount of operations including BREAD at the moment. Cargo is build on top of [Orientjs]
+Cargojs is an API for [OrientDB] operations build on top of [Express].
+
+Cargojs support few amount of operations including BREAD at the moment and build on top of [Orientjs]
 
   - Browse
   - Read
@@ -25,7 +27,7 @@ $ npm install cargojs
 
 ### Configuring the client.
 ```js
-var cargo = require('cargojs');
+var Cargo = require('cargojs');
 
 var configuration = {
     host: 'localhost',
@@ -43,7 +45,7 @@ app.use(Cargo.express(configuration, {
 }));
 ```
 
-###Use Cargo operations
+###Using Cargojs operations
 
 ####+ Browse | Return an array of records
 ```js
@@ -193,7 +195,7 @@ exports.limitUsers = function(req, res) {
 ```
 
 ### Version
-1.0.0
+0.5.2
 
 
 ### Development
