@@ -43,6 +43,7 @@ var Operations = function (schema, db) {
     this.selectClause = '';
     this.setClause = '';
     this.list = {};
+    this.rid = null;
     this.limitCount = null;
 };
 
@@ -84,8 +85,8 @@ Operations.prototype.limit = function (limit) {
  * @param list
  * @returns {Operations}
  */
-Operations.prototype.addList = function (list) {
-    this.addList = list;
+Operations.prototype.addList = function (record) {
+    this.rid = record;
     return this;
 };
 
@@ -169,7 +170,8 @@ Operations.prototype.map = function (opts) {
         list += prop[0] + ' = ' + prop[1];
     });
 
-    return this.db.query('UPDATE ' + this.addList + ' ADD ' + list);
+    console.log('UPDATE ' + this.rid + ' ADD ' + list);
+    return this.db.query('UPDATE ' + this.rid + ' ADD ' + list);
 
 };
 

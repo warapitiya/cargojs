@@ -1,8 +1,10 @@
-# Cargo
+# Cargojs
 
-Cargo is an API for [OrientDB] operations build on top of [Express].
+![alt tag](https://dl.dropboxusercontent.com/s/uwjsu733s54m60e/Cargo_long.png?dl=0)
 
-Cargo support few amount of operations including BREAD at the moment. Cargo is build on top of [Orientjs]
+Cargojs is an API for [OrientDB] operations build on top of [Express].
+
+Cargojs support few amount of operations including BREAD at the moment and build using [Orientjs] as main driver.
 
   - Browse
   - Read
@@ -25,7 +27,7 @@ $ npm install cargojs
 
 ### Configuring the client.
 ```js
-var cargo = require('cargojs');
+var Cargo = require('cargojs');
 
 var configuration = {
     host: 'localhost',
@@ -43,9 +45,9 @@ app.use(Cargo.express(configuration, {
 }));
 ```
 
-###Use Cargo operations
+###Using Cargojs operations
 
-####+ Browse | Return an array of records
+#### + Browse | Return an array of records
 ```js
 exports.browseUsers = function(req, res) {
     req.models.user.browse({
@@ -59,7 +61,7 @@ exports.browseUsers = function(req, res) {
 };
 ```
 
-####+ READ | Return a single record
+#### + READ | Return a single record
 ```js
 exports.readUser = function(req, res) {
     req.models.user.read({
@@ -73,7 +75,7 @@ exports.readUser = function(req, res) {
 };
 ```
 
-####+ Edit | Update reocrds
+#### + Edit | Update reocrds
 ```js
 exports.editUser = function(req, res) {
     req.models.user.set({
@@ -89,7 +91,7 @@ exports.editUser = function(req, res) {
 };
 ```
 
-####+ Add | Add a reocrd
+#### + Add | Add a reocrd
 ```js
 exports.addUser = function(req, res) {
     req.models.user.add({
@@ -105,7 +107,7 @@ exports.addUser = function(req, res) {
 };
 ```
 
-####+ Delete | Delete a reocrd
+#### + Delete | Delete a reocrd
 ```js
 exports.deleteUser = function(req, res) {
     req.models.user.delete({
@@ -119,7 +121,7 @@ exports.deleteUser = function(req, res) {
 };
 ```
 
-####+ Count | Count reocrds in class
+#### + Count | Count reocrds in class
 ```js
 exports.countUsers = function(req, res) {
     req.models.user.count().then(function(total)) {
@@ -131,7 +133,7 @@ exports.countUsers = function(req, res) {
 };
 ```
 
-####+ Map | Add link to record
+#### + Map | Add link to record
 ```js
 exports.linkUsers = function(req, res) {
 
@@ -149,7 +151,7 @@ exports.linkUsers = function(req, res) {
 };
 ```
 
-####+ Query | Custom query
+#### + Query | Custom query
 ```js
 exports.queryUsers = function(req, res) {
 
@@ -164,7 +166,7 @@ exports.queryUsers = function(req, res) {
 };
 ```
 
-####+ Select | Select columns
+#### + Select | Select columns
 ```js
 exports.selectColumnsUsers = function(req, res) {
     req.models.user.select('name, lastName').browse({
@@ -178,7 +180,7 @@ exports.selectColumnsUsers = function(req, res) {
 };
 ```
 
-####+ Limit | Limit records (only works with browse right now)
+#### + Limit | Limit records (only works with browse right now)
 ```js
 exports.limitUsers = function(req, res) {
     req.models.user.limit(5).browse({
@@ -193,7 +195,7 @@ exports.limitUsers = function(req, res) {
 ```
 
 ### Version
-1.0.0
+0.5.3
 
 
 ### Development

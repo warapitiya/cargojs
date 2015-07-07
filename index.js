@@ -2,20 +2,13 @@
  * Author Malindu Warapitiya
  */
 
-
+    
 var CargoConnect = require('./connect'),
     CargoBread = require('./operations'),
     CargoOptions = require('./options'),
     _models = {},
     _options = {};
 
-
-/**
- * Express use function
- * @param config
- * @param opts
- * @returns {Function}
- */
 exports.express = function (config, opts) {
     opts = opts || {};
 

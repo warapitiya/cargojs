@@ -2,32 +2,10 @@
  * Author Malindu Warapitiya
  */
 
-
-/**
- * Orientjs, OrientDB official driver for Nodejs
- * @type {OrientDB|exports|module.exports}
- */
-var Orientojs = require('orientjs');
-
-/**
- * Underscore, Functional programming made easy
- * @type {UnderscoreStatic}
- * @private
- */
+var Orientjs = require('orientjs');
 var _ = require('underscore');
-
-/**
- * Cargo, Error handling class
- * @type {CargoError|exports|module.exports}
- */
 var CargoError = require('./error');
 
-
-/**
- * Cargo, Connection function for orientjs
- * @param opts
- * @returns {*}
- */
 module.exports = function (opts) {
 
     //Validation of the Cargo options objects
@@ -39,7 +17,7 @@ module.exports = function (opts) {
 
     //Connect to the Database using Oriento
     var server;
-    server = Orientojs({
+    server = Orientjs({
         host: opts.host,
         port: opts.port,
         username: opts.user,
