@@ -9,6 +9,7 @@ var _ = require('underscore');
 var cargoUtils = require('./utils');
 var CargoError = require('./error');
 var async = require('async');
+var Q = require('q');
 var _models = {};
 var _db = {};
 var klasses = [];
@@ -21,6 +22,8 @@ var klasses = [];
  * @returns {{}}
  */
 module.exports = function (db, opts) {
+
+    var d = Q.defer();
 
     /**
      * Check options object hasProperty call DEFINE
@@ -45,6 +48,7 @@ module.exports = function (db, opts) {
 
         async.series({
                 collection: function (callback) {
+
                     db.class.list()
                         .then(function (classes) {
 
@@ -54,33 +58,6 @@ module.exports = function (db, opts) {
 
                             callback(null, classes);
                         });
-                },
-                assign: function (callback) {
-
-
-                    /**
-                     * Assign all the operations to the "_db" object
-                     * @param schema
-                     * @param properties
-                     * @returns {Operations}
-                     */
-                    _db.define = function (schema, properties) {
-
-                        if (_.has(opts, "sync")) {
-                            new bootstrap(db, opts.sync, schema, properties);
-                        }
-
-
-                        return new Operations(schema, db);
-                    };
-
-
-                    /**
-                     * Main DEFINE function execution
-                     * This is where really operations get assigns
-                     */
-                    opts.define(_db, _models);
-
                 }
             },
             function (err) {
@@ -91,15 +68,63 @@ module.exports = function (db, opts) {
                     CargoError("CONNECTION_ERROR", err);
                 }
 
+
+                /**
+                 * Assign all the operations to the "_db" object
+                 * @param schema
+                 * @param properties
+                 * @returns {Operations}
+                 */
+                _db.define = function (schema, properties) {
+
+                    if (_.has(opts, "sync")) {
+                        new bootstrap(db, opts.sync, schema, properties);
+                    }
+
+
+                    return new Operations(schema, db);
+                };
+
+                /**
+                 * Main DEFINE function execution
+                 * This is where really operations get assigns
+                 */
+                opts.define(_db, _models);
+
                 /**
                  * Returns the models with the operations
                  */
-                return _models
+
+                d.resolve(_models);
 
             });
+
+    } else {
+
+        /**
+         * Assign all the operations to the "_db" object
+         * @param schema
+         * @param properties
+         * @returns {Operations}
+         */
+        _db.define = function (schema, properties) {
+            return new Operations(schema, db);
+        }
+
+        /**
+         * Main DEFINE function execution
+         * This is where really operations get assigns
+         */
+        opts.define(_db, _models);
+
+
+        d.resolve(_models);
+
     }
 
-};
+    return d.promise;
+
+}
 
 
 /**

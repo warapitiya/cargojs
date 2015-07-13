@@ -12,7 +12,6 @@ Cargojs support few amount of operations including BREAD at the moment and build
   - Add
   - Delete
   - Count
-  - Count
   - Query
   - Map
 

@@ -6,6 +6,8 @@
 var CargoConnect = require('./connect');
 var CargoFunctions = require('./operations');
 var CargoOptions = require('./options');
+var CargoError = require('./error');
+var async = require('async');
 var _models = {};
 var _options = {};
 
@@ -15,9 +17,25 @@ exports.express = function (config, opts) {
     //Connect to the database
     var db = CargoConnect(config);
 
-    _models = CargoFunctions(db, opts);
+    async.series({
+            criticalSection: function (callback) {
 
-    _options = CargoOptions;
+                console.log('Section 1');
+                CargoFunctions(db, opts).then(function (d) {
+                    _models = d;
+                    callback(null, true);
+                });
+
+            }
+        },
+        function (err) {
+
+            if (err) {
+                return CargoError("CONNECTION_ERROR", err);
+            }
+            _options = CargoOptions;
+
+        });
 
     return function CargoExpressMiddleware(req, res, next) {
 
@@ -30,6 +48,7 @@ exports.express = function (config, opts) {
 
         return next();
     }
+
 };
 
 
