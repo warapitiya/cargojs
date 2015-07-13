@@ -39,15 +39,23 @@ var configuration = {
 
 app.use(Cargo.express(configuration, {
 
+    sync: Cargo.sync.CREATEOREXISTS, // Create the database from meta data
+    
     define: function (db, models) {
-        models.User = db.define("User", {});
+        models.User = db.define("User", {
+            'name': Cargo.types.STRING,
+            'age': Cargo.types.INTEGER
+        });
+        
+        //more class models....
     }
 }));
 ```
 
-###Using Cargojs operations
+### Using Cargojs operations
 
 #### + Browse | Return an array of records
+
 ```js
 exports.browseUsers = function(req, res) {
     req.models.user.browse({

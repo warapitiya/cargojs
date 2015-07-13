@@ -2,11 +2,17 @@
  * Author Malindu Warapitiya
  */
 
+/* global require, module */
 
-var _ = require('underscore'),
-    cargoUtils = require('./utils'),
-    _models = {},
-    _db = {};
+
+var _ = require('underscore');
+var cargoUtils = require('./utils');
+var CargoError = require('./error');
+var async = require('async');
+var _models = {};
+var _db = {};
+var klasses = [];
+
 
 /**
  * Create the common operations and return the object
@@ -16,17 +22,82 @@ var _ = require('underscore'),
  */
 module.exports = function (db, opts) {
 
+    /**
+     * Check options object hasProperty call DEFINE
+     */
+    if (!_.has(opts, "define")) {
+        throw new CargoError("DEFINE_PROPERTY_EMPTY", 'PARAM_TYPE_INVALID');
+    }
+
+
+    /**
+     * Check options object's DEFINE property is a function
+     */
     if (!_.isFunction(opts.define)) {
         throw new CargoError("DEFINE_PROPERTY_EMPTY", 'PARAM_TYPE_INVALID');
     }
 
-    _db.define = function (schema, properties) {
-        return new Operations(schema, db);
-    };
 
-    opts.define(_db, _models);
+    /**
+     * Check the sync options exists
+     */
+    if (_.has(opts, "sync")) {
 
-    return _models
+        async.series({
+                collection: function (callback) {
+                    db.class.list()
+                        .then(function (classes) {
+
+                            _.each(classes, function (item) {
+                                klasses.push(item.name);
+                            });
+
+                            callback(null, classes);
+                        });
+                },
+                assign: function (callback) {
+
+
+                    /**
+                     * Assign all the operations to the "_db" object
+                     * @param schema
+                     * @param properties
+                     * @returns {Operations}
+                     */
+                    _db.define = function (schema, properties) {
+
+                        if (_.has(opts, "sync")) {
+                            new bootstrap(db, opts.sync, schema, properties);
+                        }
+
+
+                        return new Operations(schema, db);
+                    };
+
+
+                    /**
+                     * Main DEFINE function execution
+                     * This is where really operations get assigns
+                     */
+                    opts.define(_db, _models);
+
+                }
+            },
+            function (err) {
+
+                //Async completed
+
+                if (err) {
+                    CargoError("CONNECTION_ERROR", err);
+                }
+
+                /**
+                 * Returns the models with the operations
+                 */
+                return _models
+
+            });
+    }
 
 };
 
@@ -82,7 +153,7 @@ Operations.prototype.limit = function (limit) {
 
 /**
  * Add list method chain
- * @param list
+ * @param record
  * @returns {Operations}
  */
 Operations.prototype.addList = function (record) {
@@ -217,11 +288,152 @@ Operations.prototype.count = function (opts) {
 
 /**
  * Query operation
- * @param opts
+ * @param string
  * @returns {*}
  */
 Operations.prototype.query = function (string) {
 
-    return this.db.query(string);
+    if (_.isString(string)) {
+        return this.db.query(string);
+    } else {
+        throw new CargoError("QUERY_ERROR", 'PARAM_TYPE_INVALID');
+    }
 
 };
+
+
+/**
+ * Bootstrap function
+ * @param database
+ * @param sync
+ * @param klass
+ * @param properties
+ */
+function bootstrap(database, sync, klass, properties) {
+
+    /**
+     * CREATEOREXISTS
+     */
+    if (_.isEqual(1, sync)) {
+
+        if (!_.contains(klasses, klass)) {
+
+            async.series({
+
+                    /**
+                     * Creates the class in database
+                     * @param callback
+                     */
+                    classCreate: function (callback) {
+
+                        database.class.create(klass)
+                            .then(function (value) {
+                                console.log('Created class:', value.name);
+
+                                if (!_.isEmpty(properties)) {
+
+                                    var props = [];
+
+                                    _.each(_.pairs(properties), function (item) {
+
+                                        props.push({
+                                            name: item[0],
+                                            type: item[1].type
+                                        });
+
+                                    });
+
+                                    value.property.create(props).then(function () {
+                                        console.log('Properties created:', props);
+                                        callback(null, true);
+                                    }, function (error) {
+                                        callback(error);
+                                    });
+
+                                }
+                            });
+
+                    }
+                },
+                function (err, results) {
+                    if (err) {
+                        CargoError("CONNECTION_ERROR", err);
+                    }
+
+                    return true;
+                });
+
+        } else {
+            console.log('Existing class:', klass);
+        }
+
+
+    } else if (_.isEmpty(2, sync)) {
+
+        async.series({
+
+                /**
+                 * Drop a class in database
+                 * @param callback
+                 */
+                classDrop: function (callback) {
+
+                    database.class.drop(klass)
+                        .then(function (value) {
+                            callback(null, true);
+                        }, function (error) {
+                            callback(error);
+                        });
+                },
+
+                /**
+                 * Create a class in database
+                 * @param callback
+                 */
+                classCreate: function (callback) {
+
+                    database.class.create(klass)
+                        .then(function () {
+
+                            if (!_.isEmpty(properties)) {
+
+                                var props = [];
+
+                                _.each(_.pairs(properties), function (item) {
+
+                                    props.push({
+                                        name: item[0],
+                                        type: item[1].type
+                                    });
+
+                                });
+
+                                value.property.create(props).then(function () {
+                                    console.log('Property created.');
+                                    callback(null, true);
+                                }, function (error) {
+                                    callback(error);
+                                });
+
+                            }
+
+                        });
+
+                }
+            },
+            function (err, results) {
+                if (err) {
+                    CargoError("CONNECTION_ERROR", err);
+                }
+
+                console.log(results);
+
+                if (results.classDrop && results.classCreate) {
+                    console.log('Dropped and Created :', klass);
+                }
+
+                return true;
+            });
+    }
+
+}
