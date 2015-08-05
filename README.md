@@ -15,6 +15,8 @@ Cargojs support few amount of operations including BREAD at the moment and build
   - Count
   - Query
   - Map
+    - Add
+    - Remove
   - By RID
     - Get
     - Update
@@ -159,14 +161,34 @@ exports.countUsers = function(req, res) {
 };
 ```
 
-#### + Map | Add link to record
+### Map Links
+
+#### + Add | Add link to record
 ```js
 exports.linkUsers = function(req, res) {
 
     var client = req.cargo.RID('#1:5');
     var link = req.cargo.RID('#2:3');
 
-    req.models.user.addLink(client).map({
+    req.models.user.addList(client).map({
+            'project': link
+        }).then(function(updatedCount)) {
+            console.log(updatedCount);
+        },
+        function(error) {
+            console.error(error);
+        });
+};
+```
+
+#### + Remove | Remove link to record
+```js
+exports.linkUsers = function(req, res) {
+
+    var client = req.cargo.RID('#1:5');
+    var link = req.cargo.RID('#2:3');
+
+    req.models.user.removeList(client).map({
             'project': link
         }).then(function(updatedCount)) {
             console.log(updatedCount);
