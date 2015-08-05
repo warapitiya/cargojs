@@ -14,6 +14,7 @@ codes = {
     PARAM_TYPE_INVALID: 7,
     CONNECTION_LOST: 10,
     CONNECTION_ERROR: 11,
+    TYPE_ERROR: 12,
     BAD_MODEL: 15
 };
 

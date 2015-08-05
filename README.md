@@ -11,9 +11,14 @@ Cargojs support few amount of operations including BREAD at the moment and build
   - Edit
   - Add
   - Delete
+  - Delete-All
   - Count
   - Query
   - Map
+  - By RID
+    - Get
+    - Update
+    - Delete
 
 ## Usage
 
@@ -128,6 +133,20 @@ exports.deleteUser = function(req, res) {
 };
 ```
 
+#### + Delete-All | Delete all reocrds
+```js
+exports.deleteAllUser = function(req, res) {
+    req.models.user.deleteAll({
+            'name': 'Ryan'
+        }).then(function(user)) {
+            console.log(user);
+        },
+        function(error) {
+            console.error(error);
+        });
+};
+```
+
 #### + Count | Count reocrds in class
 ```js
 exports.countUsers = function(req, res) {
@@ -201,8 +220,48 @@ exports.limitUsers = function(req, res) {
 };
 ```
 
+### Let's work with RIDs (By RID)
+
+#### + Get | Get a record
+```js
+exports.getUserbyRID = function(req, res) {
+    req.record.get('#12:1').then(function(user)) {
+            console.log(user);
+        },
+        function(error) {
+            console.error(error)
+        });
+};
+```
+
+#### + Update | Update a record
+```js
+exports.updateUserbyRID = function(req, res) {
+    req.record.RID('#12:1').update({
+            name: 'Ryan'
+        }).then(function(use)) {
+            console.log(user);
+        },
+        function(error) {
+            console.error(error)
+        });
+};
+```
+
+#### + Delete | Delete a record
+```js
+exports.deleteUserbyRID = function(req, res) {
+    req.record.delete('#12:1').then(function(user)) {
+            console.log(user);
+        },
+        function(error) {
+            console.error(error)
+        });
+};
+```
+
 ### Version
-0.5.3
+0.5.6
 
 
 ### Development

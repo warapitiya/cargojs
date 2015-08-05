@@ -9,6 +9,7 @@ var CargoOptions = require('./options');
 var CargoError = require('./error');
 var async = require('async');
 var _models = {};
+var _record = {};
 var _options = {};
 
 exports.express = function (config, opts) {
@@ -20,9 +21,9 @@ exports.express = function (config, opts) {
     async.series({
             criticalSection: function (callback) {
 
-                console.log('Section 1');
                 CargoFunctions(db, opts).then(function (d) {
-                    _models = d;
+                    _models = d.models;
+                    _record = d.record;
                     callback(null, true);
                 });
 
@@ -40,6 +41,7 @@ exports.express = function (config, opts) {
     return function CargoExpressMiddleware(req, res, next) {
 
         req.models = _models;
+        req.record = _record;
         req.cargo = _options;
 
         if (next === undefined && typeof res === 'function') {

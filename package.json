@@ -10,9 +10,19 @@
     "orientdb",
     "oriento",
     "orientjs",
-    "cargo"
+    "cargo",
+    "node.js",
+    "node",
+    "db",
+    "orient",
+    "ORM",
+    "BREAD",
+    "CRUD"
   ],
-  "author": "Malindu Warapitiya <warapitiya93@gmail.com>",
+  "author": {
+    "name": "Malindu Warapitiya",
+    "email": "warapitiya93@gmail.com"
+  },
   "license": "MIT",
   "dependencies": {
     "async": "^1.3.0",

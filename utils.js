@@ -2,8 +2,8 @@
  * Author Malindu Warapitiya
  */
 
-var Orientjs = require('orientjs'),
-    _ = require('underscore');
+var Orientjs = require('orientjs');
+var _ = require('underscore');
 
 exports.resolve = function (opts) {
 

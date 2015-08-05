@@ -91,11 +91,20 @@ module.exports = function (db, opts) {
                  */
                 opts.define(_db, _models);
 
+
+                /**
+                 * Sub Property record
+                 */
+                var record = new Extras(db);
+
                 /**
                  * Returns the models with the operations
                  */
 
-                d.resolve(_models);
+                d.resolve({
+                    models: _models,
+                    record: record
+                });
 
             });
 
@@ -118,7 +127,15 @@ module.exports = function (db, opts) {
         opts.define(_db, _models);
 
 
-        d.resolve(_models);
+        /**
+         * Sub Property record
+         */
+        var record = new Extras(db);
+
+        d.resolve({
+            models: _models,
+            record: record
+        });
 
     }
 
@@ -285,7 +302,7 @@ Operations.prototype.add = function (opts) {
 };
 
 /**
- * Delete operation
+ * Delete single record operation
  * @param opts
  * @returns {*}
  */
@@ -294,6 +311,20 @@ Operations.prototype.delete = function (opts) {
     opts = cargoUtils.resolve(opts);
 
     return this.db.delete().from(this.klass).where(opts).limit(1).scalar();
+
+};
+
+
+/**
+ * Delete all records operation
+ * @param opts
+ * @returns {*}
+ */
+Operations.prototype.deleteAll = function (opts) {
+
+    opts = cargoUtils.resolve(opts);
+
+    return this.db.delete().from(this.klass).where(opts).all();
 
 };
 
@@ -451,8 +482,6 @@ function bootstrap(database, sync, klass, properties) {
                     CargoError("CONNECTION_ERROR", err);
                 }
 
-                console.log(results);
-
                 if (results.classDrop && results.classCreate) {
                     console.log('Dropped and Created :', klass);
                 }
@@ -462,3 +491,82 @@ function bootstrap(database, sync, klass, properties) {
     }
 
 }
+
+/**
+ * Extras Functions
+ * @param db
+ * @constructor
+ */
+var Extras = function (db) {
+
+    this.db = db;
+    this.id = "";
+}
+
+
+/**
+ * Set RID
+ * @param rid
+ * @returns {Extras}
+ * @constructor
+ */
+Extras.prototype.RID = function (rid) {
+    this.id = rid;
+    return this;
+};
+
+
+/**
+ * General get from RID
+ * @param opts
+ * @returns {*}
+ */
+Extras.prototype.get = function (rid) {
+
+    if (_.isString(rid)) {
+        return this.db.record.get(rid);
+    } else {
+        throw new CargoError("UNDEFINE_PROPERTY_TYPE", 'TYPE_ERROR');
+    }
+};
+
+
+/**
+ * General delete from RID
+ * @param opts
+ * @returns {*}
+ */
+Extras.prototype.delete = function (rid) {
+
+    if (_.isString(rid)) {
+        return this.db.record.delete(rid);
+    } else {
+        throw new CargoError("UNDEFINE_PROPERTY_TYPE", 'TYPE_ERROR');
+    }
+};
+
+
+/**
+ * General Update from RID
+ * @param opts
+ * @returns {*}
+ */
+Extras.prototype.update = function (opts) {
+
+    opts = cargoUtils.resolve(opts);
+    return this.db.update(this.id).set(opts).one();
+
+};
+
+
+/**
+ * General delete from RID
+ * @param opts
+ * @returns {*}
+ */
+Extras.prototype.delete = function (opts) {
+
+    opts = cargoUtils.resolve(opts);
+    return this.db.record.delete(opts);
+
+};
