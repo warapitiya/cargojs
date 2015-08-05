@@ -293,7 +293,6 @@ Operations.prototype.map = function (opts) {
         list += prop[0] + ' = ' + prop[1];
     });
 
-    console.log(this.mapString + list);
     return this.db.query(this.mapString + list);
 
 };
