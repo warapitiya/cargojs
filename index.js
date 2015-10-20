@@ -12,7 +12,7 @@ var _models = {};
 var _record = {};
 var _options = {};
 
-exports.express = function (config, opts) {
+exports.express = function (config, opts, cb) {
     opts = opts || {};
 
     //Connect to the database
@@ -34,6 +34,9 @@ exports.express = function (config, opts) {
             if (err) {
                 return CargoError("CONNECTION_ERROR", err);
             }
+            
+            cb();
+            
             _options = CargoOptions;
 
         });

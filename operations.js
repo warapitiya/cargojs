@@ -10,6 +10,7 @@ var cargoUtils = require('./utils');
 var CargoError = require('./error');
 var async = require('async');
 var Q = require('q');
+var inherits = require('util').inherits;
 var _models = {};
 var _db = {};
 var klasses = [];
@@ -81,7 +82,6 @@ module.exports = function (db, opts) {
                         new bootstrap(db, opts.sync, schema, properties);
                     }
 
-
                     return new Operations(schema, db);
                 };
 
@@ -117,6 +117,7 @@ module.exports = function (db, opts) {
          * @returns {Operations}
          */
         _db.define = function (schema, properties) {
+
             return new Operations(schema, db);
         }
 
@@ -151,6 +152,7 @@ module.exports = function (db, opts) {
  * @constructor
  */
 var Operations = function (schema, db) {
+    this.originalKlass = schema;
     this.klass = schema;
     this.db = db;
     this.selectClause = '';
@@ -158,6 +160,7 @@ var Operations = function (schema, db) {
     this.list = {};
     this.mapString = null;
     this.limitCount = null;
+
 };
 
 
@@ -169,6 +172,42 @@ var Operations = function (schema, db) {
 Operations.prototype.select = function (selects) {
     this.selectClause = selects;
     return this;
+};
+
+/**
+ * From method chain
+ * @param from
+ * @returns {Operations}
+ */
+Operations.prototype.from = function (from) {
+    this.klass = from;
+    return this;
+};
+
+
+/**
+ * Clear memory values
+ * @param from
+ * @returns {Operations}
+ */
+Operations.prototype.flush = function () {
+    this.klass = _.clone(this.originalKlass);
+    this.selectClause = '';
+    this.setClause = '';
+    this.list = {};
+    this.mapString = null;
+    this.limitCount = null;
+    return this;
+};
+
+
+/**
+ * Clear memory values
+ * @param from
+ * @returns {Operations}
+ */
+Operations.prototype.create = function () {
+    return new Operations(this.originalKlass, this.db);
 };
 
 
@@ -221,30 +260,41 @@ Operations.prototype.removeList = function (record) {
  */
 Operations.prototype.browse = function (opts) {
 
+    opts = typeof opts !== 'undefined' ? opts : {};
+
+    var fetch = typeof opts._fetch !== 'undefined' ? opts._fetch : -1;
+
+    opts = removeProperty(opts, '_fetch');
+
     if (!_.isEmpty(opts) && !_.isEmpty(this.selectClause) && !_.isNull(this.limitCount)) {
 
-        return this.db.select(this.selectClause).from(this.klass).where(opts).limit(this.limitCount).fetch({'*': -1}).all();
+        return this.db.select(this.selectClause).from(this.klass).where(opts).limit(this.limitCount).fetch({'*': fetch}).all();
 
     } else if (!_.isNull(this.limitCount)) {
 
-        return this.db.select().from(this.klass).fetch({'*': -1}).limit(this.limitCount).all();
+        if(_.isNull(this.selectClause)){
+            return this.db.select().from(this.klass).fetch({'*': fetch}).limit(this.limitCount).all();
+        } else{
+            return this.db.select(this.selectClause).from(this.klass).fetch({'*': fetch}).limit(this.limitCount).all();
+        }
+
     }
 
     if (_.isEmpty(opts) && _.isEmpty(this.selectClause)) {
 
-        return this.db.select().from(this.klass).fetch({'*': -1}).all();
+        return this.db.select().from(this.klass).fetch({'*': fetch}).all();
 
     } else if (!_.isEmpty(opts) && _.isEmpty(this.selectClause)) {
 
-        return this.db.select().from(this.klass).where(opts).fetch({'*': -1}).all();
+        return this.db.select().from(this.klass).where(opts).fetch({'*': fetch}).all();
 
     } else if (_.isEmpty(opts) && !_.isEmpty(this.selectClause)) {
 
-        return this.db.select(this.selectClause).from(this.klass).fetch({'*': -1}).all();
+        return this.db.select(this.selectClause).from(this.klass).fetch({'*': fetch}).all();
 
     } else if (!_.isEmpty(opts) && !_.isEmpty(this.selectClause)) {
 
-        return this.db.select(this.selectClause).from(this.klass).where(opts).fetch({'*': -1}).all();
+        return this.db.select(this.selectClause).from(this.klass).where(opts).fetch({'*': fetch}).all();
     }
 
 };
@@ -257,10 +307,16 @@ Operations.prototype.browse = function (opts) {
  */
 Operations.prototype.read = function (opts) {
 
+    opts = typeof opts !== 'undefined' ? opts : {};
+
+    var fetch = typeof opts._fetch !== 'undefined' ? opts._fetch : -1;
+
+    opts = removeProperty(opts, '_fetch');
+
     if (_.isEmpty(this.selectClause)) {
-        return this.db.select('*').from(this.klass).where(opts).fetch({'*': -1}).one();
+        return this.db.select('*').from(this.klass).where(opts).fetch({'*': fetch}).one();
     } else {
-        return this.db.select(this.selectClause).from(this.klass).where(opts).fetch({'*': -1}).one();
+        return this.db.select(this.selectClause).from(this.klass).where(opts).fetch({'*': fetch}).one();
     }
 
 };
@@ -579,3 +635,17 @@ Extras.prototype.delete = function (opts) {
     return this.db.record.delete(opts);
 
 };
+
+
+/**
+ * Remove Fatch plan property
+ * @param opts
+ */
+function removeProperty(opts, prop) {
+
+    if (_.has(opts, prop)) {
+        delete opts[prop]
+    }
+
+    return opts;
+}
