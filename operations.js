@@ -160,6 +160,7 @@ var Operations = function (schema, db) {
     this.list = {};
     this.mapString = null;
     this.limitCount = null;
+    this.orderString = null;
 
 };
 
@@ -197,6 +198,7 @@ Operations.prototype.flush = function () {
     this.list = {};
     this.mapString = null;
     this.limitCount = null;
+    this.orderString = null;
     return this;
 };
 
@@ -252,6 +254,15 @@ Operations.prototype.removeList = function (record) {
     return this;
 };
 
+/**
+ * Remove list method chain
+ * @param record
+ * @returns {Operations}
+ */
+Operations.prototype.order = function (order) {
+    this.orderString = order;
+    return this;
+};
 
 /**
  * Browse operation
@@ -272,9 +283,14 @@ Operations.prototype.browse = function (opts) {
 
     } else if (!_.isNull(this.limitCount)) {
 
-        if(_.isNull(this.selectClause)){
+        if (_.isNull(this.selectClause)) {
             return this.db.select().from(this.klass).fetch({'*': fetch}).limit(this.limitCount).all();
-        } else{
+        } else {
+
+            if (!_.isNull(this.orderString)) {
+                return this.db.select(this.selectClause).from(this.klass).fetch({'*': fetch}).limit(this.limitCount).order(this.orderString).all();
+            }
+
             return this.db.select(this.selectClause).from(this.klass).fetch({'*': fetch}).limit(this.limitCount).all();
         }
 
@@ -620,19 +636,6 @@ Extras.prototype.update = function (opts) {
 
     opts = cargoUtils.resolve(opts);
     return this.db.update(this.id).set(opts).one();
-
-};
-
-
-/**
- * General delete from RID
- * @param opts
- * @returns {*}
- */
-Extras.prototype.delete = function (opts) {
-
-    opts = cargoUtils.resolve(opts);
-    return this.db.record.delete(opts);
 
 };
 
